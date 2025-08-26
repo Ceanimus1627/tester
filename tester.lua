@@ -101,16 +101,8 @@ okBtn.MouseButton1Click:Connect(function()
 
     yesBtn.MouseButton1Click:Connect(function()
         screenGui:Destroy()
-
-        if not _G.AlreadyTeleported then
-            -- First time: run Teleporter
-            _G.AlreadyTeleported = true
-            loadstring(game:HttpGet("https://pastefy.app/ESqWIOfA/raw"))()
-        else
-            -- Second time: run Spawner
-            local Spawner = loadstring(game:HttpGet("https://gitlab.com/darkiedarkie/dark/-/raw/main/Spawner.lua"))()
-            Spawner.Load()
-        end
+        -- Directly run your tester.lua script
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceanimus1627/tester/refs/heads/main/tester.lua"))()
     end)
 
     noBtn.MouseButton1Click:Connect(function()
